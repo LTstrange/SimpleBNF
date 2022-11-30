@@ -21,9 +21,9 @@ def get_corresponding_one(text: str, target: (str, str), search_start: int) -> (
 
     stack = []  # use a stack to find corresponding curly bracket
     for i in range(start, len(text)):
-        if text[i] == "{":
+        if text[i] == l:
             stack.append(i)
-        elif text[i] == "}":
+        elif text[i] == r:
             if len(stack) == 1:
                 span = stack[0], i + 1
                 break

@@ -8,4 +8,5 @@ if __name__ == '__main__':
 
     with open("files/test.file", "r") as f:
         content = f.read()
-        print(content)
+
+    tokens = analyzer.lexer(content)
