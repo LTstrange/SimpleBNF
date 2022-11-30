@@ -1,0 +1,30 @@
+// lexer write in curly bracket, define the token.
+// use r"" to represent a regex match
+// use "" to represent a directly match
+// tokens' definition has to be separate by "\n"
+// "one Token one Line" 
+%lexer%
+{
+    ID = r"[A-Za-z_][A-Za-z0-9_]*"
+    NUMBER = r"[0-9]+"
+    
+    space = r"[\s]"
+}
+
+// this is a comment
+// comments always occupy one line and cannot appear at the end or in the line.
+%grammar%
+{
+    file ::= ID "=" expr
+    
+    expr ::= term ( ("+" | "-") term)*
+    
+    term ::= factor ( ("*" | "/") factor ) *
+    
+    factor ::= ID 
+             | "(" expr ")"
+}
+
+
+
+
