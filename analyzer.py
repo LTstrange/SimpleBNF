@@ -70,13 +70,12 @@ class Lexer:
             ind += out.end()
 
     def process(self, content: str) -> list[tuple[str, str]]:
-        self.show_terminals()
         # for each char
         ind = 0
         tokens = []
         while ind < len(content):
             # check which pattern it match
-            matches = list()
+            matches = []
             for key, value in self._terminals.items():
                 if value.startswith("r"):
                     # regex match
@@ -90,7 +89,6 @@ class Lexer:
             if len(matches) == 1:
                 match = matches[0]
                 tokens.append(match[:-1])
-                print(match)
                 ind = match[-1]
             else:
                 raise Exception(f"Lexer Match Error!!!\nmatches : {matches}\nresume:\n\"{content[ind:]}\"")

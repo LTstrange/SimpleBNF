@@ -10,3 +10,4 @@ if __name__ == '__main__':
         content = f.read()
 
     tokens = analyzer.lexer(content)
+    print([token for token in tokens if token[0] != 'space'])
