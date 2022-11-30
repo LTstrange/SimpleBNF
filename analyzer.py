@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/11/30 15:10
 # @Author  : LTstrange
+
 import re
+
+ID_pattern = r"[A-Za-z_]+"
 
 
 class Analyzer:
@@ -11,9 +14,13 @@ class Analyzer:
 
     def __init__(self):
         self.__lexer = Lexer()
+        self.__grammar = BNF()
 
     def set_lexer_from_text(self, text: str):
         self.__lexer.set_from_text(text)
+
+    def set_grammar_from_text(self, text):
+        self.__grammar.set_from_text(text)
 
 
 class Lexer:
@@ -22,6 +29,18 @@ class Lexer:
 
     def set_from_text(self, text: str):
         lines = text.split("\n")
-        lines = [line.strip() for line in lines]
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            ID = re.match(ID_pattern, line).group()
+            body = line[line.find("=") + 1:].strip()
+            self._terminals[ID] = body
 
-        print(lines)
+
+class BNF:
+    def __init__(self):
+        ...
+    
+    def set_from_text(self, text):
+        print(text)

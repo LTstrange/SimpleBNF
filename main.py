@@ -32,20 +32,17 @@ if __name__ == '__main__':
     with open("files/BNF.bnf") as f:
         plain_text = f.read()
 
-    # print(plain_text)
-
     # FIRST: remove comment
     plain_text = remove_comment(plain_text)
-    # print(plain_text)
 
     # SECOND: separate out lexer part
     lexer_content = separate_parts(plain_text, "lexer")
-    # print(lexer_content)
 
     # THIRD: separate out grammar part
     grammar_content = separate_parts(plain_text, "grammar")
-    # print(grammar_content)
 
     analyzer = Analyzer()
 
     analyzer.set_lexer_from_text(lexer_content)
+    
+    analyzer.set_grammar_from_text(grammar_content)
