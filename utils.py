@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/11/30 16:19
 # @Author  : LTstrange
+import re
 
 
 def get_corresponding_one(text: str, target: (str, str), search_start: int) -> (int, int):
@@ -32,3 +33,28 @@ def get_corresponding_one(text: str, target: (str, str), search_start: int) -> (
         raise Exception("could not find the corresponding one!")
 
     return span
+
+
+def remove_comment(text: str) -> str:
+    lines = text.splitlines()
+
+    result = []
+    for line in lines:
+        if line.startswith("//"):
+            continue
+        else:
+            result.append(line)
+
+    return "\n".join(result)
+
+
+def separate_parts(text: str, target: str) -> str:
+    target = target.lower()
+
+    # 1. Find "%{target}%" Position
+    text_l = text.lower()
+    _, search_start = re.search(rf"%{target}%", text_l).span()
+    # 2. Get {target} Body
+    start, end = get_corresponding_one(text, ("{", "}"), search_start)
+
+    return text[start + 1:end - 1].strip()

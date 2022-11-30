@@ -2,7 +2,7 @@
 # @Time    : 2022/11/30 15:10
 # @Author  : LTstrange
 
-import re
+from utils import *
 
 ID_pattern = r"[A-Za-z_]+"
 
@@ -12,9 +12,25 @@ class Analyzer:
     Build AST from plain text, and store into json file.
     """
 
-    def __init__(self):
+    def __init__(self, bnf_text: str):
         self.__lexer = Lexer()
         self.__grammar = BNF()
+
+        self.set_from_text(bnf_text)
+
+    def set_from_text(self, text: str):
+        # FIRST: remove comment
+        plain_text = remove_comment(text)
+
+        # SECOND: separate out lexer part
+        lexer_content = separate_parts(plain_text, "lexer")
+
+        # THIRD: separate out grammar part
+        grammar_content = separate_parts(plain_text, "grammar")
+
+        self.set_lexer_from_text(lexer_content)
+
+        self.set_grammar_from_text(grammar_content)
 
     def set_lexer_from_text(self, text: str):
         self.__lexer.set_from_text(text)
@@ -71,7 +87,7 @@ class BNF:
                 # means this line need to attach to previous def
                 self._definitions[ID] += " " + line.strip()
 
-        self.show_definitions()
+        # self.show_definitions()
 
     def show_definitions(self):
         for key, value in self._definitions.items():
