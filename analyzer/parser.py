@@ -3,7 +3,7 @@
 # @Author  : LTstrange
 import re
 
-from CONST import *
+from .CONST import *
 
 
 class BNF:
