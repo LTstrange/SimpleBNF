@@ -2,12 +2,10 @@
 # @Time    : 2022/12/4 13:52
 # @Author  : LTstrange
 
-from utils import *
+from analyzer.utils import *
 from .parser import BNF
 from .scanner import Lexer
 from .CONST import *
-
-import pprint
 
 
 class Analyzer:
@@ -16,7 +14,7 @@ class Analyzer:
     """
 
     def __init__(self, bnf_text: str):
-        self.__lexer = Lexer()
+        self.__scanner = Lexer()
         self.__parser = BNF()
 
         self.set_from_text(bnf_text)
@@ -44,18 +42,24 @@ class Analyzer:
         lexer_content = parts['%lexer%']
         grammar_content = parts['%grammar%']
 
-        self.__lexer.set_from_text(lexer_content, grammar_content)
+        self.__scanner.set_from_text(lexer_content, grammar_content)
 
-        self.__parser.set_from_text(grammar_content)
+        self.__parser.set_from_text(grammar_content, self.__scanner.terminals)
 
-    def scanning(self, content) -> list[tuple[str, str]]:
-        tokens = self.__lexer.process(content)
+    def scanning(self, content) -> [(str, str)]:
+        tokens = self.__scanner.process(content)
         return tokens
 
     def parsing(self, tokens):
-        self.__parser.show_definitions()
-        self.__parser.process(tokens)
-
+        ast = self.__parser.process(tokens)
+        return ast
+    
+    def show(self):
+        print(f"{'LEXER':-^50}:")
+        self.__scanner.show()
+        print()
+        print(f"{'BNF':-^50}:")
+        self.__parser.show()
 
 def separate_each_part(tokens: [(str, str)]) -> dict[str, list]:
     parts = dict()

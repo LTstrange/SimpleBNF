@@ -2,8 +2,7 @@
 # @Time    : 2022/12/4 13:47
 # @Author  : LTstrange
 
-from .CONST import *
-from utils import *
+from analyzer.utils import *
 
 
 class Lexer:
@@ -13,7 +12,7 @@ class Lexer:
 
     def __init__(self):
         self._regexes: [(str, str)] = []
-        self._symbols: [str] = []
+        self._symbols: [(str, str)] = []
 
     def set_from_text(self, lexer_content: [(str, str)], grammar_content: [(str, str)]):
         # Named Terminals
@@ -33,37 +32,37 @@ class Lexer:
         # Unnamed Terminals
         for name, value in grammar_content:
             if name == 'STR':
-                value = value[1:-1]
-                self._symbols.append((value, value))
+                # value = value[1:-1]
+                self._symbols.append((value[1:-1], value))
             ind += 1
 
-        # self.show()
+    @property
+    def terminals(self) -> [str]:
+        terminals = []
+        for sym in self._symbols:
+            terminals.append(sym[0])
+        for regex in self._regexes:
+            terminals.append(regex[0])
+        return terminals
 
-    def process(self, content: str) -> list[tuple[str, str]]:
-        # for each char
-        ind = 0
-        tokens = []
-        while ind < len(content):
-            # check which pattern it match
-            matches = []
-            for key, value in self._terminals.items():
-                if value.startswith("r"):
-                    # regex match
-                    if out := re.match(value[1:].strip('"'), content[ind:]):  # matched
-                        matches.append((key, out.group(), ind + out.end()))
-                else:
-                    # direct match
-                    value = value.strip('"')
-                    if content[ind:].startswith(value):
-                        matches.append((key, value, ind + len(value)))
-            if len(matches) == 1:
-                match = matches[0]
-                tokens.append(match[:-1])
-                ind = match[-1]
+    def process(self, content: str) -> [(str, str)]:
+        regexes = [value for name, value in self._regexes]
+        symbols = [name for name, value in self._symbols]
+        tokens = eat_token_by_token(content, regexes, symbols)
+        len_reg = len(regexes)
+        stream = []
+        for i, token in tokens:
+            if i < len_reg:
+                name = self._regexes[i][0]
+                if self._regexes[i][0] == 'ID':  # keyword scenario
+                    if token in symbols:
+                        name = token
             else:
-                raise Exception(f"Lexer Match Error!!!\nmatches : {matches}\nresume:\n\"{content[ind:]}\"")
+                i -= len_reg
+                name = token
 
-        return tokens
+            stream.append((name, token))
+        return stream
 
     def show(self):
         print("REGEXES:")

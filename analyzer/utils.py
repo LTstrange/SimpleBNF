@@ -6,7 +6,7 @@ import re
 
 def eat_token_by_token(text: str, regexes: [str], symbols: [str], exclude=None) -> [(int, str)]:
     if exclude is None:
-        exclude = [r"[\s]"]
+        exclude = [r"[\s]+"]
     tokens: [(int, str)] = []
     ind = 0
     while ind < len(text):

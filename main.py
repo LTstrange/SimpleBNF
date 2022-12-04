@@ -5,12 +5,14 @@ if __name__ == '__main__':
         plain_text = f.read()
 
     analyzer = Analyzer(plain_text)
+    
+    analyzer.show()
 
     with open("files/test.file", "r") as f:
         content = f.read()
 
     tokens = analyzer.scanning(content)
-    print(tokens := [token for token in tokens if token[0] != 'space'])
+    print(tokens)
 
-    # todo: grammar analyze
-    analyzer.parsing(tokens)
+    # ast = analyzer.parsing(tokens)
+    # print(ast)
