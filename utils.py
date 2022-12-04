@@ -58,3 +58,44 @@ def separate_parts(text: str, target: str) -> str:
     start, end = get_corresponding_one(text, ("{", "}"), search_start)
 
     return text[start + 1:end - 1].strip()
+
+
+def eat_token_by_token(text: str, regexes: list[str], symbols: list[str], exclude=None) -> list[str]:
+    if exclude is None:
+        exclude = [r"[\s]"]
+    tokens: list[str] = []
+    ind = 0
+    while ind < len(text):
+        content = text[ind:]
+        matches = []
+        # FIRST: exclude
+        has_exclude = False
+        for exc in exclude:
+            if out := re.match(exc, content):
+                ind += out.end()
+                has_exclude = True
+                break
+        if has_exclude:
+            continue
+
+        # SECOND: match regex
+        for pat in regexes:
+            if out := re.match(pat, content):
+                matches.append((out.group(), out.end()))  # matched string and string's length
+
+        # THIRD: match symbol
+        for sym in symbols:
+            if content.startswith(sym):
+                matches.append((sym, len(sym)))
+        assert len(matches) != 0, f"No Match!!! Rest text:\n{content[:20]}..."
+        max_match_ind = -1
+        max_length = 0
+        for i, match in enumerate(matches):
+            if match[1] > max_length:
+                max_match_ind = i
+                max_length = match[1]
+
+        tokens.append(matches[max_match_ind][0])
+        ind += matches[max_match_ind][1]
+
+    return tokens
