@@ -9,5 +9,8 @@ if __name__ == '__main__':
     with open("files/test.file", "r") as f:
         content = f.read()
 
-    tokens = analyzer.lexer(content)
-    print([token for token in tokens if token[0] != 'space'])
+    tokens = analyzer.scanning(content)
+    print(tokens := [token for token in tokens if token[0] != 'space'])
+
+    # todo: grammar analyze
+    analyzer.parsing(tokens)
