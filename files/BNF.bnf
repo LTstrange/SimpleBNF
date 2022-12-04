@@ -3,8 +3,7 @@
 // use "" to represent a directly match
 // tokens' definition has to be separate by "\n"
 // "one Token one Line" 
-%lexer%
-{
+%lexer% {
     ID = r"[A-Za-z_][A-Za-z0-9_]*"
     NUMBER = r"[0-9]+"
     
@@ -17,9 +16,9 @@
 {
     file ::= ID "=" expr
     
-    expr ::= term ( ("+" | "-") term)*
+    expr ::= term (("+" | "-") term)*
     
-    term ::= factor ( ("*" | "/") factor ) *
+    term ::= factor (("*"|"/") factor ) *
     
     factor ::= ID 
              | "(" expr ")"
