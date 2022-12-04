@@ -12,30 +12,27 @@ class BNF:
     """
 
     def __init__(self):
-        self._definitions = dict()
+        # self._definitions = dict()
+        self._definitions = Definitions()
 
-    def set_from_text(self, text: str):
+    def set_from_text(self, grammar_content: [(str, str)]):
         # FIRST: get each definition
-        # merge multi line def into one line
-
-        lines = [line.strip() for line in text.split("\n") if line.strip()]
-        ID = ""
-        for line in lines:
-            result = re.match(ID_pattern, line)
-            if result:
-                # means this is a new definition
-                ID = result.group()
-                line = line[result.span()[1]:].lstrip()
-                if not line.startswith("::="):
-                    raise Exception("BNF grammar Error!!!: Missing \"::=\"")
-
-                body = line.lstrip("::=")
-                self._definitions[ID] = body.strip()
-            else:
-                # means this line need to attach to previous def
-                self._definitions[ID] += " " + line.strip()
-
-        # self.show_definitions()
+        print(grammar_content)
+        rules = [[]]
+        for n, v in grammar_content:
+            if v == '::=':
+                lhs = rules[-1].pop()
+                rules.append([lhs])
+            if n not in ['\n', '{', '}']:
+                if n == 'STR':
+                    v = v[1:-1]
+                rules[-1].append(v)
+        for rule in rules[1:]:
+            lhs = rule[0]
+            rhs = rule[2:]
+            self._definitions.add_def(lhs, rhs)
+        self._definitions.show()
+        exit()
 
     def show_definitions(self):
         for key, value in self._definitions.items():
@@ -46,3 +43,18 @@ class BNF:
         ast = dict()
         a = self._definitions.items()
         print(a)
+
+
+class Definitions:
+    def __init__(self):
+        self.__rules: [(str, list)] = []
+
+    def add_def(self, lhs: str, rhs: list[str]):
+        self.__rules.append((lhs, rhs))
+
+    def show(self):
+        for rule in self.__rules:
+            print(f"{rule[0]}\t::= \t", end='')
+            for value in rule[1]:
+                print(value, end=' ')
+            print()

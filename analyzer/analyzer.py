@@ -5,6 +5,9 @@
 from utils import *
 from .parser import BNF
 from .scanner import Lexer
+from .CONST import *
+
+import pprint
 
 
 class Analyzer:
@@ -19,24 +22,31 @@ class Analyzer:
         self.set_from_text(bnf_text)
 
     def set_from_text(self, text: str):
+        tokens = eat_token_by_token(text, [regex for name, regex in REGEXES], SYMBOLS, exclude=EXCLUDE)
+        stream = []
+        for i, t in tokens:
+            if i < LEN_REGEXES:
+                name = REGEXES[i][0]
+                value = t
+            else:
+                i -= LEN_REGEXES
+                name = SYMBOLS[i]
+                value = t
+            stream.append((name, value))
+
         # FIRST: remove comment
-        plain_text = remove_comment(text)
+        stream = [token for token in stream if token[0] != 'COMMENT']
+        # print(stream)
+        # exit()
 
-        # SECOND: separate out lexer part
-        lexer_content = separate_parts(plain_text, "lexer")
+        # SECOND: separate out each part
+        parts = separate_each_part(stream)
+        lexer_content = parts['%lexer%']
+        grammar_content = parts['%grammar%']
 
-        # THIRD: separate out grammar part
-        grammar_content = separate_parts(plain_text, "grammar")
-
-        self.__set_lexer_from_text(lexer_content, grammar_content)
-
-        self.__set_grammar_from_text(grammar_content)
-
-    def __set_lexer_from_text(self, lexer_content: str, grammar_content: str):
         self.__lexer.set_from_text(lexer_content, grammar_content)
 
-    def __set_grammar_from_text(self, text):
-        self.__parser.set_from_text(text)
+        self.__parser.set_from_text(grammar_content)
 
     def scanning(self, content) -> list[tuple[str, str]]:
         tokens = self.__lexer.process(content)
@@ -45,3 +55,23 @@ class Analyzer:
     def parsing(self, tokens):
         self.__parser.show_definitions()
         self.__parser.process(tokens)
+
+
+def separate_each_part(tokens: [(str, str)]) -> dict[str, list]:
+    parts = dict()
+    previous_part = ""
+    stack = 0
+    for name, value in tokens:
+        if previous_part != "":
+            parts[previous_part].append((name, value))
+            if name == '{':
+                stack += 1
+            elif name == '}':
+                stack -= 1
+                if stack == 0:  # means this part is end.
+                    previous_part = ""
+        elif name == "HEAD":
+            previous_part = value
+            parts[value] = []
+            continue
+    return parts

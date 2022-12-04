@@ -6,7 +6,6 @@
 %lexer% {
     ID = r"[A-Za-z_][A-Za-z0-9_]*"
     NUMBER = r"[0-9]+"
-    
     space = r"[\s]"
 }
 
