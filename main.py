@@ -5,7 +5,7 @@ if __name__ == '__main__':
         plain_text = f.read()
 
     analyzer = Analyzer(plain_text)
-    
+
     analyzer.show()
 
     with open("files/test.file", "r") as f:

@@ -13,7 +13,7 @@
 // comments always occupy one line and cannot appear at the end or in the line.
 %grammar%
 {
-    file ::= ID "=" "for" expr
+    file ::= ID "=" expr
 
     expr ::= term (("+" | "-") term)*
 
@@ -22,3 +22,4 @@
     factor ::= ID
              | NUMBER
              | "(" expr ")"
+}

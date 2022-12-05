@@ -53,13 +53,14 @@ class Analyzer:
     def parsing(self, tokens):
         ast = self.__parser.process(tokens)
         return ast
-    
+
     def show(self):
         print(f"{'LEXER':-^50}:")
         self.__scanner.show()
         print()
         print(f"{'BNF':-^50}:")
         self.__parser.show()
+
 
 def separate_each_part(tokens: [(str, str)]) -> dict[str, list]:
     parts = dict()
