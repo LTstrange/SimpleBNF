@@ -24,10 +24,15 @@ def parse_def(tokens: list[str]) -> (int, list[str]):
         elif token == ')':
             return ind, gen_out(body_type, body)
         elif token == '|':
-            body_type = 'select'
+            if body_type == 'stream':
+                body_type = 'select'
+                body = [body]
+            body.append([])
         else:
-            body.append(token)
-
+            if body_type == 'select':
+                body[-1].append(token)
+            else:
+                body.append(token)
     return ind, gen_out(body_type, body)
 
 
@@ -45,6 +50,7 @@ class Definitions:
             self.__top_rule = lhs
 
         l, rhs = parse_def(rhs)
+        print(rhs)
         self.__rules[lhs] = rhs
 
     def show(self):
