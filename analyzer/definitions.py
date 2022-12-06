@@ -5,25 +5,27 @@
 
 def ebnf_2_bnf(base_ind, rhs):
     rules = [[]]
-    append_ind = 0
+    stack = [0]
     # when meat a bracket, find corresponding one, extract content, and add a rule with that content
     for ind, lexeme in enumerate(rhs):
         if lexeme == '(':
+            # push a stack
+            stack.append(len(rules))
             rules.append([])
-            append_ind += 1
         elif lexeme == ')':
-            append_ind -= 1
-            rules[append_ind].append(append_ind + 1 + base_ind)
+            # pop a stack
+            new_rule_ind = stack.pop()
+            rules[stack[-1]].append(new_rule_ind + base_ind)
         elif lexeme == '*':
             # pop out the star affect lexeme, and move them all to a new rule
-            previous_lexeme = rules[append_ind].pop()
+            previous_lexeme = rules[stack[-1]].pop()
             new_rule_ind = len(rules) + base_ind
             rules.append([previous_lexeme, new_rule_ind, '|', None])
-            rules[append_ind].append(new_rule_ind)
+            rules[stack[-1]].append(new_rule_ind)
         else:
             # normal lexeme
-            rules[append_ind].append(lexeme)
-    
+            rules[stack[-1]].append(lexeme)
+
     bnf_rules = []
     for rule in rules:
         bnf_rules.append([])
@@ -43,7 +45,7 @@ def ebnf_2_bnf(base_ind, rhs):
 class Definitions:
     def __init__(self):
         self.__top_rule = ""
-        self._rule_names: list[str] = []
+        self.__rule_names: dict[str, int] = dict()
         self.__rules: list = []
 
     @property
@@ -53,25 +55,32 @@ class Definitions:
     def add_def(self, lhs: str, rhs: [str]):
         if self.__top_rule == "":
             self.__top_rule = lhs
-        # self._rule_names.append(lhs)
+        self.__rule_names[lhs] = len(self.__rules)
 
         # FIRST: Turn EBNF to BNF
-        self.parse_def(rhs)
-        # SECOND: Eliminate common prefix
-        
-
-    def parse_def(self, rhs):
         rules = ebnf_2_bnf(len(self.__rules), rhs)
         self.__rules.extend(rules)
-            
+        # SECOND: Eliminate common prefix
+
+    def process_def(self):
+        pass
 
     def show(self):
+        names = list(self.__rule_names.keys())
+        indexes = list(self.__rule_names.values())
         for ind, rule in enumerate(self.__rules):
-            print(f"{ind}\t -> \t", end='')
-            print(rule)
+            print(f"{ind:<4}", end='')
+            a = names[indexes.index(ind)] if ind in indexes else ''
+            print(f"{a:7} ->\t\t", end='')
+            for select in rule:
+                for lexeme in select:
+                    print(f"{str(lexeme):<8}", end='')
+                print('|', end=' ' * 7)
+            print('\b' * 8)
 
     def has_this_rule(self, rule_name: str) -> bool:
-        return rule_name in self.__rules
+        return rule_name in self.__rule_names
 
-    def __getitem__(self, rule_name: str) -> [str]:
-        return self.__rules[rule_name]
+    @property
+    def rule_names(self):
+        return tuple(self.__rule_names)
