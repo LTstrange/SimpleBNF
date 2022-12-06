@@ -10,8 +10,7 @@
 }
 
 // this is a comment
-// comments always occupy one line and cannot appear at the end or in the line.
-%grammar%
+%grammar%  // Comments can be at the end of a line
 {
     file ::= ID "=" expr
 
