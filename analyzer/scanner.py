@@ -48,7 +48,7 @@ class Lexer:
     def process(self, content: str) -> [(str, str)]:
         regexes = [value for name, value in self._regexes]
         symbols = [name for name, value in self._symbols]
-        tokens = eat_token_by_token(content, regexes, symbols)
+        tokens = match_token_by_token(content, regexes, symbols)
         len_reg = len(regexes)
         stream = []
         for i, token in tokens:

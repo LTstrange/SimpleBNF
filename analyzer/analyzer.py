@@ -20,7 +20,7 @@ class Analyzer:
         self.set_from_text(bnf_text)
 
     def set_from_text(self, text: str):
-        tokens = eat_token_by_token(text, [regex for name, regex in REGEXES], SYMBOLS, exclude=EXCLUDE)
+        tokens = match_token_by_token(text, [regex for name, regex in REGEXES], SYMBOLS, exclude=EXCLUDE)
         stream = []
         for i, t in tokens:
             if i < LEN_REGEXES:
