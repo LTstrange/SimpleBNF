@@ -32,16 +32,12 @@ class Analyzer:
                 value = t
             stream.append((name, value))
 
-        # FIRST: remove comment
-        stream = [token for token in stream if token[0] != 'COMMENT']
-        # print(stream)
-        # exit()
-
-        # SECOND: separate out each part
+        # FIRST: separate out each part
         parts = separate_each_part(stream)
         lexer_content = parts['%lexer%']
         grammar_content = parts['%grammar%']
-
+        
+        # SECOND: set scanner(lexer) and parser(bnf)
         self.__scanner.set_from_text(lexer_content, grammar_content)
 
         self.__parser.set_from_text(grammar_content, self.__scanner.terminals)
