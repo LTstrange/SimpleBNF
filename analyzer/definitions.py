@@ -34,11 +34,11 @@ def ebnf_2_bnf(base_ind, rhs):
         for lexeme in rule:
             if lexeme == '|':
                 # sealed a selection, and prepared next one
-                bnf_rules[-1].append(tuple(selection))
+                bnf_rules[-1].append(selection)
                 selection = []
             else:
                 selection.append(lexeme)
-        bnf_rules[-1].append(tuple(selection))
+        bnf_rules[-1].append(selection)
     return bnf_rules
 
 
@@ -46,7 +46,7 @@ class Definitions:
     def __init__(self):
         self.__top_rule = ""
         self.__rule_names: dict[str, int] = dict()
-        self.__rules: list = []
+        self.__rules: list[list[list]] = []
 
     @property
     def top_rule(self):
@@ -63,8 +63,69 @@ class Definitions:
         # SECOND: Eliminate common prefix
 
     def process_def(self):
-        pass
+        rule_names = set(self.__rule_names.keys())
+        # Turn Un-Terminal to integer
+        for i in range(len(self.__rules)):
+            rule_i = self.__rules[i]
+            for s in range(len(rule_i)):
+                selection = rule_i[s]
+                for l in range(len(selection)):
+                    lexeme = selection[l]
+                    if lexeme in rule_names:
+                        self.__rules[i][s][l] = self.__rule_names[lexeme]
 
+        # Here is some discussion, in case I forgot it in the future.
+        # Q: Do we really need to store rule_i?
+        # A: First, we can. Because when rule_j replace rule_i,(j < i).
+        #    There has not direct recursion in rule_j, because we eliminate it before.( # FOURTH )
+        #    So it will have no left.
+        #    Second, If we don't store rule_i, there will have a risk of out of control. 
+        #    Because we are modify an array, and read our modification at same time, It's so bug-ly.
+
+        # THIRD: Eliminate left recursion (indirect and direct)
+        for i in range(len(self.__rules)):  # <-This is necessary, because we need to modify self.__rules[i] in process.
+            for j in range(i):
+                rule_i = self.__rules[i]  # It needs to be here, because we change rule_i in this "for j loop".
+                rule_j = self.__rules[j]
+                for s in range(len(rule_i)):
+                    select_i = rule_i[s]  # for each selection
+                    if select_i[0] == j:  # if that selection is start by rule_j, so there has an indirect recursion
+                        # 1. remove that selection
+                        self.__rules[i][s] = None
+                        # 2. replace that rule_j lexeme by rule_j's each selection 
+                        # and each one create a new selection in rule_i
+                        for select_j in rule_j:
+                            new_select = select_j + select_i[1:]
+                            self.__rules[i].append(new_select)
+                self.__rules[i] = [select for select in self.__rules[i] if select is not None]
+
+            # FOURTH: Eliminate direct left recursion for rule_i
+            rule_i = self.__rules[i]
+            beta = []  # not start with rule_i
+            alpha = []  # start with rule_i
+            for select in rule_i:
+                if select[0] == i:
+                    alpha.append(select[1:])
+                else:
+                    beta.append(select)
+
+            if len(alpha) == 0:  # Means there has no direct left recursion
+                continue
+
+            # There must have at least one beta selection, otherwise, the grammar has a circle
+            if len(beta) == 0:
+                raise "ERROR!!! Defined grammar has a circle!!!"
+
+            new_rule_ind = len(self.__rules)
+            beta = [select + [new_rule_ind] for select in beta]
+            alpha = [select + [new_rule_ind] for select in alpha if select is not None]
+            alpha.append([None])
+            self.__rules.append(alpha)
+            self.__rules[i] = beta
+        
+        # FIFTH: reduce rules
+        # There will have some rules, which no other rule can access them
+        # We need to reduce them
     def show(self):
         names = list(self.__rule_names.keys())
         indexes = list(self.__rule_names.values())
@@ -74,6 +135,9 @@ class Definitions:
             print(f"{a:7} ->\t\t", end='')
             for select in rule:
                 for lexeme in select:
+                    if type(lexeme) == int and lexeme in indexes:
+                        lexeme = names[indexes.index(lexeme)]
+                        # print(lexeme)
                     print(f"{str(lexeme):<8}", end='')
                 print('|', end=' ' * 7)
             print('\b' * 8)

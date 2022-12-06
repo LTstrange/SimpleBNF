@@ -5,8 +5,10 @@ if __name__ == '__main__':
         plain_text = f.read()
 
     analyzer = Analyzer(plain_text)
-    exit()
+    # exit()
     analyzer.show()
+    print()
+    exit()
 
     with open("files/test.file", "r") as f:
         content = f.read()
