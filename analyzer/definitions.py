@@ -72,7 +72,38 @@ class Definitions:
         # FIFTH: reduce rules
         # There will have some rules, which no other rule can access them
         # We need to reduce them.
-        # for rule in self.__rules:
+        self.reduce_unused_rules()
+        
+        # SIXTH: reduce same prefix
+        
+
+    def reduce_unused_rules(self):
+        accessible = {0}  # find accessible
+        queue = [0]
+        while len(queue) != 0:
+            rule = self.__rules[queue.pop(0)]
+            for selection in rule:
+                un_terminals = set([lexeme for lexeme in selection if type(lexeme) == int])
+                un_terminals.difference_update(accessible)
+                accessible.update(un_terminals)
+                queue.extend(un_terminals)
+        rules = []
+        for i, r in enumerate(self.__rules):  # this make sure the new rules' order is same as old one.
+            if i in accessible:
+                rules.append(r)
+        # match the index number of rules
+        accessible = sorted(list(accessible))
+        for rule in rules:
+            for s in range(len(rule)):
+                selection = list(map(lambda x: accessible.index(x) if type(x) == int else x, rule[s]))
+                rule[s] = selection  # <-this work
+        k = list(self.__rule_names.keys())
+        v = list(self.__rule_names.values())
+        for acc in accessible:
+            if acc in v:
+                self.__rule_names[k[v.index(acc)]] = accessible.index(acc)
+
+        self.__rules = rules
 
     def eliminate_left_recursion(self):
         # Here is some discussion, in case I forgot it in the future.
