@@ -42,15 +42,14 @@ def ebnf_2_bnf(base_ind, rhs):
     return bnf_rules
 
 
-def update_index(rules, from_ind: int, to_ind: int):
-    for r in range(len(rules)):
-        rule = rules[r]
+def update_index(rules, from_ind: int, to_ind: int) -> list[list[list]]:
+    for rule in rules:
         if rule is None:
             continue
-        for l in range(len(rule)):
-            lexeme = rule[l]
-            if lexeme == from_ind:
-                rules[r][l] = to_ind
+        for select in rule:
+            for l, lexeme in enumerate(select):
+                if lexeme == from_ind:
+                    select[l] = to_ind
     return rules
 
 
@@ -81,13 +80,15 @@ class Definitions:
         # THIRD: Eliminate left recursion (indirect and direct)
         self.eliminate_left_recursion()
 
-        # FIFTH: reduce rules
+        self.remove_redundant_rule()
+
+        # FIFTH: reduce common prefix
+        self.reduce_common_prefix()
+
+        # SIXTH: reduce rules
         # There will have some rules, which no other rule can access them
         # We need to reduce them.
         self.reduce_unused_rules()
-
-        # SIXTH: reduce common prefix
-        self.reduce_common_prefix()
 
         # SEVENTH: calculate FIRST set
         self.calculate_first_set()
@@ -226,6 +227,20 @@ class Definitions:
 
         rule = [rule[s] for s in range(len(rule)) if rule[s] is not None]
         self.__rules[rule_ind] = rule
+
+    def remove_redundant_rule(self):
+        for r, rule in enumerate(self.__rules):
+            if rule is None:
+                continue
+            if len(rule) == 1 and len(rule[0]) == 1 and type(rule[0][0]) == int:
+                # single selection, single lexeme, and is an Un-terminal
+                need_move_ind = rule[0][0]
+                need_move_rule = self.__rules[need_move_ind]
+
+                self.__rules[need_move_ind] = [[None]]
+                self.__rules[r] = need_move_rule
+
+                self.__rules = update_index(self.__rules, need_move_ind, r)
 
     def calculate_first_set(self):
         self.__first_set = [set() for _ in range(len(self.__rules))]
