@@ -24,8 +24,12 @@ class Lexer:
                 lhs = value
                 rhs = lexer_content[ind + 2][1]
                 if lexer_content[ind + 2][0] == "REGEX_DEF":
+                    if lhs in [r[0] for r in self._regexes]:
+                        raise "Multiple definition of lexer"
                     self._regexes.append((lhs, rhs[2:-1]))
                 elif lexer_content[ind + 2][0] == "STR":
+                    if lhs in [s[0] for s in self._symbols]:
+                        raise "Multiple definition of lexer"
                     self._symbols.append((lhs, rhs[1:-1]))
             ind += 1
 
