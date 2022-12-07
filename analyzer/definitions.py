@@ -42,11 +42,24 @@ def ebnf_2_bnf(base_ind, rhs):
     return bnf_rules
 
 
+def update_index(rules, from_ind: int, to_ind: int):
+    for r in range(len(rules)):
+        rule = rules[r]
+        if rule is None:
+            continue
+        for l in range(len(rule)):
+            lexeme = rule[l]
+            if lexeme == from_ind:
+                rules[r][l] = to_ind
+    return rules
+
+
 class Definitions:
     def __init__(self):
         self.__top_rule = ""
         self.__rule_names: dict[str, int] = dict()
         self.__rules: list[list[list]] = []
+        self.__first_set: list = []
 
     @property
     def top_rule(self):
@@ -76,9 +89,8 @@ class Definitions:
         # SIXTH: reduce common prefix
         self.reduce_common_prefix()
 
-        # 3. remove old one
-        for key, value in prefixes.items():
-            rule = [None if s in value else rule[s] for s in range(len(rule))]
+        # SEVENTH: calculate FIRST set
+        self.calculate_first_set()
 
     def Turn_UnTerminal2Int(self):
         rule_names = set(self.__rule_names.keys())
@@ -214,6 +226,34 @@ class Definitions:
 
         rule = [rule[s] for s in range(len(rule)) if rule[s] is not None]
         self.__rules[rule_ind] = rule
+
+    def calculate_first_set(self):
+        self.__first_set = [set() for _ in range(len(self.__rules))]
+        has_newly_added = True
+        while has_newly_added:
+            has_newly_added = False
+            for r, rule in enumerate(self.__rules):
+                for select in rule:
+                    has_none = True
+                    l = 0
+                    while has_none and l < len(select):
+                        has_none = False
+                        lexeme = select[l]
+                        if type(lexeme) == str and lexeme not in self.__first_set[r]:
+                            # terminal
+                            self.__first_set[r].add(lexeme)
+                            has_newly_added = True
+                        elif lexeme is None and lexeme not in self.__first_set[r]:
+                            has_none = True
+                        elif type(lexeme) == int and \
+                                len(self.__first_set[lexeme].difference(self.__first_set[r])) != 0:
+                            # Un terminal
+                            self.__first_set[r].update(self.__first_set[lexeme])
+                            has_newly_added = True
+                        l += 1
+                    if has_none:
+                        self.__first_set[r].add(None)
+        print(self.__first_set)
 
     def show(self):
         names = list(self.__rule_names.keys())
