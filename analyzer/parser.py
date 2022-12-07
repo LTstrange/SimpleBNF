@@ -30,16 +30,7 @@ class BNF:
             rhs = rule[2:]
             self._definitions.add_def(lhs, rhs)
 
-    def process(self, tokens, rule_name=None):
-        if rule_name is None:
-            rule_name = self._definitions.top_rule
-        rule = self._definitions[rule_name]
-
-        ast = [rule_name, []]
-
-        # 1. direct match token
-        # 2. '|' operator
-        # 3. '*' operator
+        self._definitions.process_def()
 
     def show(self):
         self._definitions.show()

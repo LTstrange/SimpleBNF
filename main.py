@@ -2,18 +2,18 @@ from analyzer import Analyzer
 
 if __name__ == '__main__':
     with open("files/BNF.bnf", "r") as f:
-        plain_text = f.read()
+        bnf_text = f.read()
 
-    analyzer = Analyzer(plain_text)
-    # exit()
+    analyzer = Analyzer(bnf_text)
+
     analyzer.show()
     print()
     exit()
 
     with open("files/test.file", "r") as f:
-        content = f.read()
+        plain_text = f.read()
 
-    tokens = analyzer.scanning(content)
+    tokens = analyzer.scanning(plain_text)
     print(tokens)
 
     # ast = analyzer.parsing(tokens)
