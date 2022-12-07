@@ -31,7 +31,7 @@ class Lexer:
 
         # Unnamed Terminals
         for name, value in grammar_content:
-            if name == 'STR':
+            if name == 'STR' and value[1:-1] not in [s[0] for s in self._symbols]:
                 # value = value[1:-1]
                 self._symbols.append((value[1:-1], value))
             ind += 1
