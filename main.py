@@ -16,5 +16,5 @@ if __name__ == '__main__':
     tokens = analyzer.scanning(plain_text)
     print(tokens)
 
-    # ast = analyzer.parsing(tokens)
-    # print(ast)
+    ast = analyzer.parsing(tokens)
+    print(ast)

@@ -34,7 +34,7 @@ def match_token_by_token(text: str, regexes: [str], letters: [str], exclude=None
                 matches.append((i + reg_len, sym))
         # todo: we need a panic mode to recover from Error
         assert len(matches) != 0, f"No Match!!! Rest text:\n{content[:20]}..."
-        
+
         # if there has multiple match, select the longest one
         max_match_ind = -1
         max_length = 0

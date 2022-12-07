@@ -36,7 +36,7 @@ class Analyzer:
         parts = separate_each_part(stream)
         lexer_content = parts['%lexer%']
         grammar_content = parts['%grammar%']
-        
+
         # SECOND: set scanner(lexer) and parser(bnf)
         self.__scanner.set_from_text(lexer_content, grammar_content)
 
