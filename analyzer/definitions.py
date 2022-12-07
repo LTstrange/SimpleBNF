@@ -289,8 +289,8 @@ class Definitions:
             print('\b' * width)
 
     def has_this_rule(self, rule_name: str) -> bool:
-        return rule_name in self.__rule_names
+        return rule_name in self.__rule_names.keys()
 
     @property
     def rule_names(self):
-        return tuple(self.__rule_names)
+        return tuple(self.__rule_names.keys())
