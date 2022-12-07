@@ -23,7 +23,10 @@ class Analyzer:
         tokens = match_token_by_token(bnf_text, [regex for name, regex in REGEXES], SYMBOLS, exclude=EXCLUDE)
         stream = []
         for i, t in tokens:
-            if i < LEN_REGEXES:
+            if i == -1:
+                name = 'EOF'
+                value = t
+            elif i < LEN_REGEXES:
                 name = REGEXES[i][0]
                 value = t
             else:
@@ -74,5 +77,8 @@ def separate_each_part(tokens: [(str, str)]) -> dict[str, list]:
         elif name == "HEAD":
             previous_part = value
             parts[value] = []
-            continue
-    return parts
+        elif name == 'EOF':
+            if stack != 0:
+                raise 
+            return parts
+    raise 

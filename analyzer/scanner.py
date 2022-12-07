@@ -56,7 +56,9 @@ class Lexer:
         len_reg = len(regexes)
         stream = []
         for i, token in tokens:
-            if i < len_reg:
+            if i == -1:
+                name = 'EOF'
+            elif i < len_reg:
                 name = self._regexes[i][0]
                 if self._regexes[i][0] == 'ID':  # keyword scenario
                     if token in symbols:
