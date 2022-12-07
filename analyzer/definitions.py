@@ -73,9 +73,52 @@ class Definitions:
         # There will have some rules, which no other rule can access them
         # We need to reduce them.
         self.reduce_unused_rules()
-        
+
         # SIXTH: reduce same prefix
-        
+        rule_ind = 0
+        while rule_ind < len(self.__rules):
+            # find common prefix
+            self.extract_prefix(rule_ind)
+            rule_ind += 1
+
+    def extract_prefix(self, rule_ind):
+        rule = self.__rules[rule_ind]
+        # 1. find same prefix length 1
+        prefixes = dict()
+        for i, select in enumerate(rule):
+            if select[0] not in prefixes.keys():
+                prefixes[select[0]] = []
+            prefixes[select[0]].append(i)
+
+        # 2. add new rule
+        for key, value in list(prefixes.items()):
+            if len(value) == 1:
+                del prefixes[key]
+                continue
+            new_rule = []
+            for v in value:
+                new_rule.append(rule[v][1:])
+
+            i = 0
+            # all selection has appendix
+            if len([select for select in new_rule if len(select) == 0]) == 0:
+                while all([select[i] == new_rule[0][i] for select in new_rule[1:]]):  # they have same prefix
+                    i += 1
+            else:
+                new_rule = [[None] if len(select) == 0 else select for select in new_rule]
+
+            # adjust select length of old rule and new rule
+            old_rule_remain = rule[value[0]][:i + 1]
+            new_rule = [select[i:] for select in new_rule]
+            rule.append([*old_rule_remain, len(self.__rules)])
+            self.__rules.append(new_rule)
+
+        # 3. remove old one
+        for key, value in prefixes.items():
+            rule = [None if s in value else rule[s] for s in range(len(rule))]
+
+        rule = [rule[s] for s in range(len(rule)) if rule[s] is not None]
+        self.__rules[rule_ind] = rule
 
     def reduce_unused_rules(self):
         accessible = {0}  # find accessible
