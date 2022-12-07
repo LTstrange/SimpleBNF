@@ -66,6 +66,15 @@ class Definitions:
         # Turn Un-Terminal to integer
         self.Turn_UnTerminal2Int()
 
+        # THIRD: Eliminate left recursion (indirect and direct)
+        self.eliminate_left_recursion()
+
+        # FIFTH: reduce rules
+        # There will have some rules, which no other rule can access them
+        # We need to reduce them.
+        # for rule in self.__rules:
+
+    def eliminate_left_recursion(self):
         # Here is some discussion, in case I forgot it in the future.
         # Q: Do we really need to store rule_i?
         # A: First, we can. Because when rule_j replace rule_i,(j < i).
@@ -74,15 +83,6 @@ class Definitions:
         #    Second, If we don't store rule_i, there will have a risk of out of control. 
         #    Because we are modify an array, and read our modification at same time, It's so bug-ly.
 
-        # THIRD: Eliminate left recursion (indirect and direct)
-        self.eliminate_left_recursion()
-        
-        # FIFTH: reduce rules
-        # There will have some rules, which no other rule can access them
-        # We need to reduce them.
-        # for rule in self.__rules:
-
-    def eliminate_left_recursion(self):
         for i in range(len(self.__rules)):  # <-This is necessary, because we need to modify self.__rules[i] in process.
             for j in range(i):
                 rule_i = self.__rules[i]  # It needs to be here, because we change rule_i in this "for j loop".
@@ -138,7 +138,7 @@ class Definitions:
         names = list(self.__rule_names.keys())
         indexes = list(self.__rule_names.values())
         width = 10
-        num_width = (len(self.__rules)-1) // 10 + 1
+        num_width = (len(self.__rules) - 1) // 10 + 1
         for ind, rule in enumerate(self.__rules):
             print(f"{ind:>{num_width}}:", end='')
             a = names[indexes.index(ind)] if ind in indexes else ''
@@ -146,10 +146,10 @@ class Definitions:
             for select in rule:
                 for lexeme in select:
                     if type(lexeme) == int and lexeme in indexes:
-                        lexeme =f"{lexeme}:{names[indexes.index(lexeme)]}"
+                        lexeme = f"{lexeme}:{names[indexes.index(lexeme)]}"
                         # print(lexeme)
                     print(f"{str(lexeme):<{width}}", end='')
-                print('|', end=' ' * (width-1))
+                print('|', end=' ' * (width - 1))
             print('\b' * width)
 
     def has_this_rule(self, rule_name: str) -> bool:
