@@ -49,5 +49,5 @@ def match_token_by_token(text: str, regexes: [str], letters: [str], exclude=None
         tokens.append(match)
         ind += max_length  # move ind to match next token
 
-    tokens.append((-1, ''))  # end of file
+    tokens.append((-1, None))  # end of file
     return tokens
