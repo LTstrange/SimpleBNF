@@ -346,10 +346,6 @@ class Definitions:
             if len(result) != 0:
                 raise "Not a LL(1) grammar!!!"
 
-            
-        
-        
-
     def show(self, show_select_set=False):
         names = list(self.__rule_names.keys())
         indexes = list(self.__rule_names.values())
