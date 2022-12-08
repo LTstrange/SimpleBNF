@@ -336,6 +336,19 @@ class Definitions:
                     self.__select_set[-1].update(self.__first_set[first_lexeme])
                 elif first_lexeme is None:
                     self.__select_set[-1].update(self.__follow_set[r])
+            # check LL(1)
+            if len(rule) == 1:
+                continue
+            same_lhs_selections = self.__select_set[-len(rule):]
+            result = same_lhs_selections[0]
+            for s, select in enumerate(same_lhs_selections[1:]):
+                result = result.intersection(select)
+            if len(result) != 0:
+                raise "Not a LL(1) grammar!!!"
+
+            
+        
+        
 
     def show(self, show_select_set=False):
         names = list(self.__rule_names.keys())
