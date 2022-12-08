@@ -61,6 +61,9 @@ class Definitions:
         self.__first_set: list[set] = []
         self.__follow_set: list[set] = []
 
+        self.__selections: list = []
+        self.__select_set: list[set] = []
+
     @property
     def top_rule(self):
         return self.__top_rule
@@ -96,6 +99,9 @@ class Definitions:
 
         # EIGHTH: calculate FOLLOW set
         self.calculate_follow_set()
+
+        # NINTH: calculate SELECT set
+        self.calculate_select_set()
 
     def Turn_UnTerminal2Int(self):
         rule_names = set(self.__rule_names.keys())
@@ -272,7 +278,6 @@ class Definitions:
                         l += 1
                     if has_none:
                         self.__first_set[r].add(None)
-        print(self.__first_set)
 
     def calculate_follow_set(self):
         self.__follow_set = [set() for _ in range(len(self.__rules))]
@@ -318,7 +323,21 @@ class Definitions:
                                 self.__follow_set[lexeme].update(self.__follow_set[r])
                                 has_newly_added = True
 
-    def show(self):
+    def calculate_select_set(self):
+        for r, rule in enumerate(self.__rules):
+            for select in rule:
+                self.__select_set.append(set())
+                self.__selections.append(select)
+                first_lexeme = select[0]
+
+                if type(first_lexeme) == str:
+                    self.__select_set[-1].add(first_lexeme)
+                elif type(first_lexeme) == int:
+                    self.__select_set[-1].update(self.__first_set[first_lexeme])
+                elif first_lexeme is None:
+                    self.__select_set[-1].update(self.__follow_set[r])
+
+    def show(self, show_select_set=False):
         names = list(self.__rule_names.keys())
         indexes = list(self.__rule_names.values())
         width = 10
@@ -335,6 +354,9 @@ class Definitions:
                     print(f"{str(lexeme):<{width}}", end='')
                 print('|', end=' ' * (width - 1))
             print('\b' * width)
+        if show_select_set:
+            for s, select in enumerate(self.__selections):
+                print(self.__select_set[s], '\t', select)
 
     def has_this_rule(self, rule_name: str) -> bool:
         return rule_name in self.__rule_names.keys()
