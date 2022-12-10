@@ -2,7 +2,7 @@
 # @Time    : 2022/12/4 13:52
 # @Author  : LTstrange
 
-from analyzer.utils import *
+from .utils import *
 from .parser import BNF
 from .scanner import Lexer
 from .CONST import *
@@ -79,6 +79,6 @@ def separate_each_part(tokens: [(str, str)]) -> dict[str, list]:
             parts[value] = []
         elif name == 'EOF':
             if stack != 0:
-                raise 
+                raise
             return parts
-    raise 
+    raise

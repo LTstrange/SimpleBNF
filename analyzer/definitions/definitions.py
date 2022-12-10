@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/12/5 14:42
 # @Author  : LTstrange
-
+from .predict_table import PredictTable
 from .utils import *
 
 
@@ -16,7 +16,7 @@ class Definitions:
         self.__selections: list = []
         self.__select_set: list[set] = []
 
-        self.predict_table: list[list] = []
+        self.__predict_table: PredictTable = PredictTable()
 
     @property
     def top_rule(self):
@@ -38,6 +38,9 @@ class Definitions:
         # THIRD: Eliminate left recursion (indirect and direct)
         self.eliminate_left_recursion()
 
+        # FOURTH: remove redundant rule
+        # Some rule's rhs contain only one Un-terminal
+        # single selection, single lexeme, and is an Un-terminal
         self.remove_redundant_rule()
 
         # FIFTH: reduce common prefix
@@ -48,17 +51,8 @@ class Definitions:
         # We need to reduce them.
         self.reduce_unused_rules()
 
-        # SEVENTH: calculate FIRST set
-        self.__first_set = calculate_first_set(self.__rules)
-
-        # EIGHTH: calculate FOLLOW set
-        self.__follow_set = calculate_follow_set(self.__rules, self.__first_set)
-
-        # NINTH: calculate SELECT set
-        self.__select_set, self.__selections = calculate_select_set(self.__rules, self.__first_set, self.__follow_set)
-
-        # TENTH: generate predict table
-        self.generate_predict_table()
+        # SEVENTH: calculate predict table
+        self.__predict_table.calculate_predict_table(self.__rules)
 
     def Turn_UnTerminal2Int(self):
         rule_names = set(self.__rule_names.keys())
@@ -208,9 +202,6 @@ class Definitions:
                 self.__rules[r] = need_move_rule
 
                 self.__rules = update_index(self.__rules, need_move_ind, r)
-
-    def generate_predict_table(self):
-        pass
 
     def show(self, show_select_set=False):
         names = list(self.__rule_names.keys())
