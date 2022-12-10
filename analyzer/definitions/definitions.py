@@ -2,6 +2,8 @@
 # @Time    : 2022/12/5 14:42
 # @Author  : LTstrange
 
+from .utils import *
+
 
 def ebnf_2_bnf(base_ind, rhs):
     rules = [[]]
@@ -63,7 +65,7 @@ class Definitions:
 
         self.__selections: list = []
         self.__select_set: list[set] = []
-        
+
         self.predict_table: list[list] = []
 
     @property
@@ -81,7 +83,7 @@ class Definitions:
 
     def process_def(self):
         # Turn Un-Terminal to integer
-        self.Turn_UnTerminal2Int()
+        self.__rules = Turn_UnTerminal2Int(self.__rules, self.__rule_names)
 
         # THIRD: Eliminate left recursion (indirect and direct)
         self.eliminate_left_recursion()
@@ -104,20 +106,9 @@ class Definitions:
 
         # NINTH: calculate SELECT set
         self.calculate_select_set()
-        
+
         # TENTH: generate predict table
         self.generate_predict_table()
-
-    def Turn_UnTerminal2Int(self):
-        rule_names = set(self.__rule_names.keys())
-        for i in range(len(self.__rules)):
-            rule_i = self.__rules[i]
-            for s in range(len(rule_i)):
-                selection = rule_i[s]
-                for l in range(len(selection)):
-                    lexeme = selection[l]
-                    if lexeme in rule_names:
-                        self.__rules[i][s][l] = self.__rule_names[lexeme]
 
     def eliminate_left_recursion(self):
         # Here is some discussion, in case I forgot it in the future.
