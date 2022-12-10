@@ -55,7 +55,7 @@ class Definitions:
         self.__follow_set = calculate_follow_set(self.__rules, self.__first_set)
 
         # NINTH: calculate SELECT set
-        self.calculate_select_set()
+        self.__select_set, self.__selections = calculate_select_set(self.__rules, self.__first_set, self.__follow_set)
 
         # TENTH: generate predict table
         self.generate_predict_table()

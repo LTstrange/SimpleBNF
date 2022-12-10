@@ -125,3 +125,31 @@ def calculate_follow_set(rules: list[list[list]], first_set: list[set]) -> list[
                             follow_set[lexeme].update(follow_set[r])
                             has_newly_added = True
     return follow_set
+
+
+def calculate_select_set(rules, first_set, follow_set) -> (list[set], list):
+    select_set: list[set] = []
+    selections: list = []
+    for r, rule in enumerate(rules):
+        for select in rule:
+            select_set.append(set())
+            selections.append(select)
+            first_lexeme = select[0]
+
+            if type(first_lexeme) == str:
+                select_set[-1].add(first_lexeme)
+            elif type(first_lexeme) == int:
+                select_set[-1].update(first_set[first_lexeme])
+            elif first_lexeme is None:
+                select_set[-1].update(follow_set[r])
+        # check LL(1)
+        if len(rule) == 1:
+            continue
+        same_lhs_selections = select_set[-len(rule):]
+        result = same_lhs_selections[0]
+        for s, select in enumerate(same_lhs_selections[1:]):
+            result = result.intersection(select)
+        if len(result) != 0:
+            raise "Not a LL(1) grammar!!!"
+    
+    return select_set, selections
