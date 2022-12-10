@@ -63,6 +63,8 @@ class Definitions:
 
         self.__selections: list = []
         self.__select_set: list[set] = []
+        
+        self.predict_table: list[list] = []
 
     @property
     def top_rule(self):
@@ -102,6 +104,9 @@ class Definitions:
 
         # NINTH: calculate SELECT set
         self.calculate_select_set()
+        
+        # TENTH: generate predict table
+        self.generate_predict_table()
 
     def Turn_UnTerminal2Int(self):
         rule_names = set(self.__rule_names.keys())
@@ -345,6 +350,9 @@ class Definitions:
                 result = result.intersection(select)
             if len(result) != 0:
                 raise "Not a LL(1) grammar!!!"
+
+    def generate_predict_table(self):
+        pass
 
     def show(self, show_select_set=False):
         names = list(self.__rule_names.keys())
