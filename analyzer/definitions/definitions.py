@@ -2,7 +2,7 @@
 # @Time    : 2022/12/5 14:42
 # @Author  : LTstrange
 
-from utils import *
+from .utils import *
 
 
 class Definitions:
@@ -52,7 +52,7 @@ class Definitions:
         self.__first_set = calculate_first_set(self.__rules)
 
         # EIGHTH: calculate FOLLOW set
-        self.calculate_follow_set()
+        self.__follow_set = calculate_follow_set(self.__rules, self.__first_set)
 
         # NINTH: calculate SELECT set
         self.calculate_select_set()
@@ -208,50 +208,6 @@ class Definitions:
                 self.__rules[r] = need_move_rule
 
                 self.__rules = update_index(self.__rules, need_move_ind, r)
-
-    def calculate_follow_set(self):
-        self.__follow_set = [set() for _ in range(len(self.__rules))]
-        self.__follow_set[0].add('EOF')
-
-        has_newly_added = True
-        while has_newly_added:
-            has_newly_added = False
-            for r, rule in enumerate(self.__rules):
-                for select in rule:
-                    for l, lexeme in enumerate(select):
-                        if type(lexeme) != int:  # ignore terminal
-                            continue
-                        # un terminal
-                        if l + 1 == len(select):  # at bottom
-                            # add follow[r] in lexeme
-                            if len(self.__follow_set[r].difference(self.__follow_set[lexeme])) != 0:
-                                self.__follow_set[lexeme].update(self.__follow_set[r])
-                                has_newly_added = True
-                        elif l + 1 < len(select):  # have suffix
-                            suffix_ind = l + 1
-                            has_none = True
-                            while has_none and suffix_ind < len(select):
-                                has_none = False
-                                suffix = select[l + 1]
-                                if type(suffix) == int:
-                                    # suffix is an un-terminal
-                                    if None in self.__first_set[suffix]:  # include empty
-                                        # we need to see if there has newly added after a has none suffix.
-                                        # because, maybe after that has something updated.
-                                        has_none = True
-                                    exclude_none = self.__first_set[suffix].difference([None])
-                                    if len(exclude_none.difference(self.__follow_set[lexeme])) != 0:
-                                        self.__follow_set[lexeme].update(exclude_none)
-                                        has_newly_added = True
-                                elif type(suffix) == str:
-                                    # suffix is a terminal
-                                    if suffix not in self.__follow_set[lexeme]:
-                                        self.__follow_set[lexeme].add(suffix)
-                                        has_newly_added = True
-                                suffix_ind += 1
-                            if has_none and len(self.__follow_set[r].difference(self.__follow_set[lexeme])) != 0:
-                                self.__follow_set[lexeme].update(self.__follow_set[r])
-                                has_newly_added = True
 
     def calculate_select_set(self):
         for r, rule in enumerate(self.__rules):
