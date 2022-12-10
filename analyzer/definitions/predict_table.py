@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/12/10 14:21
 # @Author  : LTstrange
+import pprint
 
 from .utils import *
 
@@ -9,19 +10,25 @@ class PredictTable:
     def __init__(self):
         self.__first_set: list[set] = []
         self.__follow_set: list[set] = []
-        self.__select_set: list[set] = []
+        self.__select_set: list[list[set]] = []
 
-        self.__selections: list = []
+        self.__table: list[dict] = []
 
-    def calculate_predict_table(self, rules):
+    def calculate_predict_table(self, rules: list[list[list]]):
         self.calculate_first_set(rules)
         self.calculate_follow_set(rules)
         self.calculate_select_set(rules)
 
-    def select_next_rule(self, un_terminal, terminal):
-        ...
+        self.calculate_table(rules)
 
-    def calculate_first_set(self, rules):
+    def select(self, un_terminal, terminal) -> list[str or None]:
+        if terminal in self.__table[un_terminal].keys():
+            rule = self.__table[un_terminal][terminal]
+            return rule
+        else:
+            return None
+
+    def calculate_first_set(self, rules: list[list[list]]):
         self.__first_set = [set() for _ in range(len(rules))]
         has_newly_added = True
         while has_newly_added:
@@ -48,7 +55,7 @@ class PredictTable:
                     if has_none:
                         self.__first_set[r].add(None)
 
-    def calculate_follow_set(self, rules):
+    def calculate_follow_set(self, rules: list[list[list]]):
         self.__follow_set = [set() for _ in range(len(rules))]
         self.__follow_set[0].add('EOF')
 
@@ -92,25 +99,30 @@ class PredictTable:
                                 self.__follow_set[lexeme].update(self.__follow_set[r])
                                 has_newly_added = True
 
-    def calculate_select_set(self, rules):
+    def calculate_select_set(self, rules: list[list[list]]):
         for r, rule in enumerate(rules):
-            for select in rule:
-                self.__select_set.append(set())
-                self.__selections.append(select)
+            self.__select_set.append([])
+            for s, select in enumerate(rule):
+                self.__select_set[r].append(set())
                 first_lexeme = select[0]
 
                 if type(first_lexeme) == str:
-                    self.__select_set[-1].add(first_lexeme)
+                    self.__select_set[r][-1].add(first_lexeme)
                 elif type(first_lexeme) == int:
-                    self.__select_set[-1].update(self.__first_set[first_lexeme])
+                    self.__select_set[r][-1].update(self.__first_set[first_lexeme])
                 elif first_lexeme is None:
-                    self.__select_set[-1].update(self.__follow_set[r])
-            # check LL(1)
-            if len(rule) == 1:
+                    self.__select_set[r][-1].update(self.__follow_set[r])
+            if len(self.__select_set[r]) == 1:
                 continue
-            same_lhs_selections = self.__select_set[-len(rule):]
-            result = same_lhs_selections[0]
-            for s, select in enumerate(same_lhs_selections[1:]):
+            result = self.__select_set[r][0]
+            for s, select in enumerate(self.__select_set[r][1:]):
                 result = result.intersection(select)
             if len(result) != 0:
                 raise "Not a LL(1) grammar!!!"
+
+    def calculate_table(self, rules: list[list[list]]):
+        for r, rule in enumerate(rules):
+            self.__table.append(dict())
+            for s, select_set in enumerate(self.__select_set[r]):
+                for each in list(select_set):
+                    self.__table[r][each] = s

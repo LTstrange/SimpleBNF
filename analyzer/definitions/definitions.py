@@ -33,28 +33,36 @@ class Definitions:
 
     def process_def(self):
         # Turn Un-Terminal to integer
-        self.Turn_UnTerminal2Int()
+        self.__Turn_UnTerminal2Int()
 
         # THIRD: Eliminate left recursion (indirect and direct)
-        self.eliminate_left_recursion()
+        self.__eliminate_left_recursion()
 
         # FOURTH: remove redundant rule
         # Some rule's rhs contain only one Un-terminal
         # single selection, single lexeme, and is an Un-terminal
-        self.remove_redundant_rule()
+        self.__remove_redundant_rule()
 
         # FIFTH: reduce common prefix
-        self.reduce_common_prefix()
+        self.__reduce_common_prefix()
 
         # SIXTH: reduce rules
         # There will have some rules, which no other rule can access them
         # We need to reduce them.
-        self.reduce_unused_rules()
+        self.__reduce_unused_rules()
 
         # SEVENTH: calculate predict table
         self.__predict_table.calculate_predict_table(self.__rules)
 
-    def Turn_UnTerminal2Int(self):
+        return self.__predict_table
+
+    def select(self, un_terminal: int, terminal: str):
+        output = self.__predict_table.select(un_terminal, terminal)
+        if type(output) == int:
+            output = self.__rules[un_terminal][output]
+        return output
+    
+    def __Turn_UnTerminal2Int(self):
         rule_names = set(self.__rule_names.keys())
         for i in range(len(self.__rules)):
             rule_i = self.__rules[i]
@@ -65,7 +73,7 @@ class Definitions:
                     if lexeme in rule_names:
                         self.__rules[i][s][l] = self.__rule_names[lexeme]
 
-    def eliminate_left_recursion(self):
+    def __eliminate_left_recursion(self):
         # Here is some discussion, in case I forgot it in the future.
         # Q: Do we really need to store rule_i?
         # A: First, we can. Because when rule_j replace rule_i,(j < i).
@@ -114,7 +122,7 @@ class Definitions:
             self.__rules.append(alpha)
             self.__rules[i] = beta
 
-    def reduce_unused_rules(self):
+    def __reduce_unused_rules(self):
         accessible = {0}  # find accessible
         queue = [0]
         while len(queue) != 0:
@@ -142,15 +150,15 @@ class Definitions:
 
         self.__rules = rules
 
-    def reduce_common_prefix(self):
+    def __reduce_common_prefix(self):
         rule_ind = 0
         # Process each rule, including newly added
         while rule_ind < len(self.__rules):
             # find common prefix
-            self.extract_prefix(rule_ind)
+            self.__extract_prefix(rule_ind)
             rule_ind += 1
 
-    def extract_prefix(self, rule_ind):
+    def __extract_prefix(self, rule_ind):
         rule = self.__rules[rule_ind]
         # 1. find same prefix length 1
         prefixes = dict()
@@ -189,7 +197,7 @@ class Definitions:
         rule = [rule[s] for s in range(len(rule)) if rule[s] is not None]
         self.__rules[rule_ind] = rule
 
-    def remove_redundant_rule(self):
+    def __remove_redundant_rule(self):
         for r, rule in enumerate(self.__rules):
             if rule is None:
                 continue
@@ -203,7 +211,7 @@ class Definitions:
 
                 self.__rules = update_index(self.__rules, need_move_ind, r)
 
-    def show(self, show_select_set=False):
+    def show(self):
         names = list(self.__rule_names.keys())
         indexes = list(self.__rule_names.values())
         width = 10
@@ -220,13 +228,3 @@ class Definitions:
                     print(f"{str(lexeme):<{width}}", end='')
                 print('|', end=' ' * (width - 1))
             print('\b' * width)
-        if show_select_set:
-            for s, select in enumerate(self.__selections):
-                print(self.__select_set[s], '\t', select)
-
-    def has_this_rule(self, rule_name: str) -> bool:
-        return rule_name in self.__rule_names.keys()
-
-    @property
-    def rule_names(self):
-        return tuple(self.__rule_names.keys())

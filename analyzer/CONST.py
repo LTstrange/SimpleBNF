@@ -19,3 +19,4 @@ SYMBOLS = [
 ]
 
 EXCLUDE = [r'[^(\S|\n)]+', r"//.*?\n"]
+EOF = '<EOF>'

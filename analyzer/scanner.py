@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/12/4 13:47
 # @Author  : LTstrange
-
-from analyzer.utils import *
+from .CONST import EOF
+from .utils import *
 
 
 class Lexer:
@@ -36,8 +36,8 @@ class Lexer:
         # Unnamed Terminals
         for name, value in grammar_content:
             if name == 'STR' and value[1:-1] not in [s[0] for s in self._symbols]:
-                # value = value[1:-1]
-                self._symbols.append((value[1:-1], value))
+                value = value[1:-1]
+                self._symbols.append((f"'{value}'", value))
             ind += 1
 
     @property
@@ -51,13 +51,13 @@ class Lexer:
 
     def process(self, content: str) -> [(str, str)]:
         regexes = [value for name, value in self._regexes]
-        symbols = [name for name, value in self._symbols]
+        symbols = [value for name, value in self._symbols]
         tokens = match_token_by_token(content, regexes, symbols)
         len_reg = len(regexes)
         stream = []
         for i, token in tokens:
             if i == -1:
-                name = 'EOF'
+                name = EOF
             elif i < len_reg:
                 name = self._regexes[i][0]
                 if self._regexes[i][0] == 'ID':  # keyword scenario
@@ -65,7 +65,9 @@ class Lexer:
                         name = token
             else:
                 i -= len_reg
-                name = token
+                name = self._symbols[i][0]
+                # token = f"'{token}'"
+                # name = token
 
             stream.append((name, token))
         return stream

@@ -24,7 +24,7 @@ class Analyzer:
         stream = []
         for i, t in tokens:
             if i == -1:
-                name = 'EOF'
+                name = EOF
                 value = t
             elif i < LEN_REGEXES:
                 name = REGEXES[i][0]
@@ -54,11 +54,12 @@ class Analyzer:
         return ast
 
     def show(self):
-        print(f"{'LEXER':-^50}:")
+        print(f":{'LEXER':-^50}:")
         self.__scanner.show()
         print()
-        print(f"{'BNF':-^50}:")
+        print(f":{'BNF':-^50}:")
         self.__parser.show()
+        print()
 
 
 def separate_each_part(tokens: [(str, str)]) -> dict[str, list]:
@@ -77,7 +78,7 @@ def separate_each_part(tokens: [(str, str)]) -> dict[str, list]:
         elif name == "HEAD":
             previous_part = value
             parts[value] = []
-        elif name == 'EOF':
+        elif name == EOF:
             if stack != 0:
                 raise
             return parts

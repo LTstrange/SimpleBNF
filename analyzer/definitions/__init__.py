@@ -3,5 +3,6 @@
 # @Author  : LTstrange
 
 from .definitions import Definitions
+from .predict_table import PredictTable
 
-__all__ = ['Definitions']
+__all__ = ['Definitions', 'PredictTable']

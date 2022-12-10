@@ -7,8 +7,6 @@ if __name__ == '__main__':
     analyzer = Analyzer(bnf_text)
 
     analyzer.show()
-    print()
-    exit()
 
     with open("files/test.file", "r") as f:
         plain_text = f.read()
