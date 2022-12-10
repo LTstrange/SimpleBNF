@@ -209,29 +209,6 @@ class Definitions:
 
                 self.__rules = update_index(self.__rules, need_move_ind, r)
 
-    def calculate_select_set(self):
-        for r, rule in enumerate(self.__rules):
-            for select in rule:
-                self.__select_set.append(set())
-                self.__selections.append(select)
-                first_lexeme = select[0]
-
-                if type(first_lexeme) == str:
-                    self.__select_set[-1].add(first_lexeme)
-                elif type(first_lexeme) == int:
-                    self.__select_set[-1].update(self.__first_set[first_lexeme])
-                elif first_lexeme is None:
-                    self.__select_set[-1].update(self.__follow_set[r])
-            # check LL(1)
-            if len(rule) == 1:
-                continue
-            same_lhs_selections = self.__select_set[-len(rule):]
-            result = same_lhs_selections[0]
-            for s, select in enumerate(same_lhs_selections[1:]):
-                result = result.intersection(select)
-            if len(result) != 0:
-                raise "Not a LL(1) grammar!!!"
-
     def generate_predict_table(self):
         pass
 
